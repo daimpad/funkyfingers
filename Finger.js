@@ -1,3 +1,25 @@
+// ============================================================================
+// EIGENE SVGs HIER EINTRAGEN
+// ----------------------------------------------------------------------------
+// Trage hier ein oder mehrere SVGs als String ein. Ist das Array leer, werden
+// automatisch die original prozeduralen Finger gezeichnet.
+//
+// WICHTIG:
+//  - Am besten pro SVG genau EIN <path> verwenden (mehrere Pfade werden zu
+//    einem CompoundPath zusammengefasst). Sonst kann die Kollisionserkennung
+//    ungenau werden.
+//  - Keine Farben/Styles im SVG nötig - Fuellung/Farbe steuert der Generator.
+//  - Bei mehreren Eintraegen wird pro Hand zufaellig einer ausgewaehlt.
+//
+// Das folgende Beispiel (ein Stern) kannst du durch deine eigenen SVGs ersetzen.
+// ============================================================================
+const CUSTOM_SVGS = [
+    // Beispiel-SVG - hier dein eigenes einsetzen oder das Array leeren ([])
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <path d="M50 2 L61 38 L98 38 L68 60 L79 96 L50 74 L21 96 L32 60 L2 38 L39 38 Z"/>
+    </svg>`
+];
+
 class Finger{
 
 
@@ -128,6 +150,57 @@ class Finger{
     }
 
     drawhand(){
+        // Wenn eigene SVGs hinterlegt sind, diese verwenden - sonst die
+        // original prozedural gezeichneten Finger.
+        if(CUSTOM_SVGS && CUSTOM_SVGS.length > 0){
+            return this.drawSVGHand();
+        }
+        return this.drawProceduralHand();
+    }
+
+    drawSVGHand(){
+        let src = CUSTOM_SVGS.length === 1 ? CUSTOM_SVGS[0] : _.sample(CUSTOM_SVGS);
+        let hand = this.svgToPath(src);
+
+        // Style zuruecksetzen - Farbe/Fuellung uebernimmt der Generator.
+        hand.fillColor = 'black';
+        hand.strokeColor = 'black';
+        hand.strokeWidth = 3;
+
+        return hand;
+    }
+
+    // Wandelt einen SVG-String in ein einzelnes Path/CompoundPath-Objekt um,
+    // das sich wie die original gezeichnete Hand verhaelt (fillColor,
+    // intersects, contains, clone, scale ... funktionieren darauf).
+    svgToPath(svgString){
+        let imported = project.importSVG(svgString, { insert: false, expandShapes: true });
+
+        let paths = [];
+        (function collect(item){
+            if(item.className === 'Path' || item.className === 'CompoundPath'){
+                paths.push(item);
+            }else if(item.children){
+                item.children.slice().forEach(collect);
+            }
+        })(imported);
+
+        let hand;
+        if(paths.length === 0){
+            // Fallback: leerer Pfad, damit nichts crasht
+            hand = new Path();
+        }else if(paths.length === 1){
+            hand = paths[0];
+        }else{
+            // Mehrere Pfade zu einem CompoundPath zusammenfassen
+            paths.forEach(p => p.remove());
+            hand = new CompoundPath({ children: paths });
+        }
+        hand.remove();
+        return hand;
+    }
+
+    drawProceduralHand(){
         let h = 100;
         let w = 30;
         let c = w + _.random(-w/3, w/3);
