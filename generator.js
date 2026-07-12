@@ -24,9 +24,11 @@ window.onload = async function() {
     var downloadLink = document.createElement("a");
     document.body.appendChild(downloadLink);
 
+    buildShapeGallery();
+
     shuffle();
     generate();
-    
+
     //genGrid();
     //genStickers();
     
@@ -131,8 +133,53 @@ function shuffle(){
 
 }
 
-// Liest die ausgewaehlten SVG-Dateien ein und verwendet sie als Formen.
-// Bei mehreren Dateien wird pro Hand zufaellig eine Form ausgewaehlt.
+// --- Formen-Galerie -------------------------------------------------------
+// Alle waehlbaren Formen (eingebaute Sammlung + hochgeladene) und die aktuell
+// ausgewaehlten. Aktive Auswahl = diese Formen; leer -> prozedurale Finger.
+let shapeItems = [];
+let selectedShapes = new Set();
+
+function buildShapeGallery(){
+    shapeItems = (typeof SHAPE_LIBRARY !== 'undefined' ? SHAPE_LIBRARY : [])
+        .map(s => ({ svg: s.svg, name: s.name, builtin: true }));
+    renderShapeGallery();
+}
+
+function renderShapeGallery(){
+    let gallery = document.getElementById('shapegallery');
+    if(!gallery){
+        return;
+    }
+    gallery.innerHTML = '';
+    shapeItems.forEach(item => {
+        let btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'shapebtn' + (selectedShapes.has(item.svg) ? ' selected' : '');
+        btn.title = item.name || 'SVG';
+        btn.innerHTML = item.svg;
+        btn.onclick = function(){ toggleShape(item.svg); };
+        gallery.appendChild(btn);
+    });
+}
+
+function toggleShape(svg){
+    if(selectedShapes.has(svg)){
+        selectedShapes.delete(svg);
+    }else{
+        selectedShapes.add(svg);
+    }
+    applyShapeSelection();
+    renderShapeGallery();
+}
+
+// Uebernimmt die aktuelle Auswahl (Galerie + Uploads) und zeichnet neu.
+function applyShapeSelection(){
+    setCustomSVGs([...selectedShapes]);
+    generate();
+}
+
+// Liest hochgeladene SVG-Dateien ein, fuegt sie der Galerie hinzu, waehlt sie
+// aus und zeichnet neu. Bei mehreren Formen wird pro Hand zufaellig eine gewaehlt.
 function uploadSVGs(files){
     if(!files || files.length === 0){
         return;
@@ -144,9 +191,15 @@ function uploadSVGs(files){
         remaining--;
         if(remaining === 0){
             let svgs = contents.filter(Boolean);
+            svgs.forEach(svg => {
+                if(!shapeItems.some(it => it.svg === svg)){
+                    shapeItems.push({ svg: svg, name: 'Upload', builtin: false });
+                }
+                selectedShapes.add(svg);
+            });
             if(svgs.length > 0){
-                setCustomSVGs(svgs);
-                generate();
+                applyShapeSelection();
+                renderShapeGallery();
             }
             document.getElementById('svgupload').value = '';
         }
@@ -167,10 +220,12 @@ function uploadSVGs(files){
     }
 }
 
-// Zurueck zu den original prozeduralen Fingern.
+// Auswahl aufheben -> zurueck zu den original prozeduralen Fingern.
 function resetShapes(){
+    selectedShapes.clear();
     setCustomSVGs([]);
     generate();
+    renderShapeGallery();
 }
 
 // Regler fuer Groesse / Stauchung / Anzahl. Neuzeichnen leicht verzoegert,
