@@ -464,8 +464,11 @@ class Finger{
             hand.scale(200 / maxDim, hand.bounds.center);
         }
 
-        // Style zuruecksetzen - Farbe/Fuellung uebernimmt der Generator.
-        hand.fillColor = 'black';
+        // Style wie beim prozeduralen Pfad: schwarze Kontur, KEINE Fuellung.
+        // Die Fuellfarbe setzt der Generator spaeter (h1.fillColor = ...); der
+        // Kontur-Klon h2 bleibt dadurch nur Umriss und ueberdeckt die Farbe
+        // nicht. Bei den grossen Formen dient die Form ohnehin nur als Clip.
+        hand.fillColor = null;
         hand.strokeColor = 'black';
         hand.strokeWidth = 3;
 
@@ -498,7 +501,13 @@ class Finger{
             paths.forEach(p => p.remove());
             hand = new CompoundPath({ children: paths });
         }
-        hand.remove();
+        // Wichtig: Die Form MUSS in der aktiven Ebene liegen, damit sie
+        // gezeichnet wird - genau wie der prozedurale "new Path()". Der mit
+        // insert:false importierte Wrapper wird sonst nicht gerendert.
+        paper.project.activeLayer.addChild(hand);
+        if(imported && imported.remove){
+            imported.remove();
+        }
         return hand;
     }
 
