@@ -184,6 +184,21 @@ function changeSVGSetting(key, value){
     regenerateDebounced();
 }
 
+// Umschalten zwischen Zufallsdrehung und fester Ausrichtung.
+function changeRandomRotation(checked){
+    setSVGSetting('randomRotation', checked);
+    let slider = document.getElementById('rotationslider');
+    if(slider){
+        slider.disabled = checked;
+    }
+    regenerateDebounced();
+}
+
+// Ein-/Ausblenden der Einstellungsleiste (Hamburger auf schmalen Screens).
+function toggleMenu(){
+    document.getElementById('settingswrap').classList.toggle('open');
+}
+
 function toggleFingers(){
     if(tinyFingers){
         fingers.removeTinyFingers();

@@ -3,7 +3,8 @@
 <head>
 <!-- Load the Paper.js library -->
 
-<meta name="viewport" content="width=700, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Some F*s to give</title>
 <meta name="description" content="Tired of everything? Generate some F*s">
 
@@ -28,6 +29,7 @@
     <div id="canvwrap">
         <canvas id="myCanvas" resize></canvas>
 	</div>
+	<button id="menutoggle" onclick="toggleMenu()" aria-label="Menü">☰</button>
 	<div id="settingswrap">
 
     <div class="seg">
@@ -77,6 +79,10 @@
             <label>Größe<input type="range" class="slider" id="sizeslider" min="0.3" max="2.5" step="0.1" value="1" oninput="changeSVGSetting('size', this.value)"></label>
             <label>Stauchung<input type="range" class="slider" id="squashslider" min="0.3" max="2.5" step="0.1" value="1" oninput="changeSVGSetting('squash', this.value)"></label>
             <label>Anzahl<input type="range" class="slider" id="countslider" min="0.2" max="3" step="0.1" value="1" oninput="changeSVGSetting('count', this.value)"></label>
+            <label>Kontur<input type="range" class="slider" id="strokeslider" min="0" max="3" step="0.1" value="1" oninput="changeSVGSetting('stroke', this.value)"></label>
+            <label>Streu-Rand<input type="range" class="slider" id="marginslider" min="0" max="300" step="10" value="0" oninput="changeSVGSetting('margin', this.value)"></label>
+            <label>Rotation<input type="range" class="slider" id="rotationslider" min="0" max="360" step="5" value="0" disabled oninput="changeSVGSetting('rotation', this.value)"></label>
+            <label class="checklabel"><input type="checkbox" id="randomrotcheck" checked onchange="changeRandomRotation(this.checked)">Zufallsdrehung</label>
         </div>
         <div>
         <button id="savesvg"  onclick="downloadSVG()">Save SVG</button>
