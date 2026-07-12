@@ -31,6 +31,22 @@ function setCustomSVGs(svgStrings){
     (svgStrings || []).forEach(s => CUSTOM_SVGS.push(s));
 }
 
+// Regelbare Darstellungsparameter fuer die Formen.
+//  size   : Groessen-Multiplikator (1 = normal)
+//  squash : Stauchung/Streckung der Hoehe (1 = normal, <1 flacher, >1 hoeher)
+//  count  : Anzahl-Multiplikator fuer die gestreuten Formen (1 = normal)
+const SVG_SETTINGS = {
+    size: 1,
+    squash: 1,
+    count: 1
+};
+
+function setSVGSetting(key, value){
+    if(key in SVG_SETTINGS){
+        SVG_SETTINGS[key] = value;
+    }
+}
+
 class Finger{
     
     
@@ -248,7 +264,11 @@ class Finger{
             
 
 
-            for(let i = 0; i<this.text.length * 20 + 80; i++){
+            // Die ersten 8 Durchlaeufe erzeugen die grossen Deko-Formen; nur
+            // der gestreute Rest wird ueber den Anzahl-Regler skaliert.
+            let scatter = Math.round((this.text.length * 20 + 80 - 8) * (SVG_SETTINGS.count || 1));
+            let iterations = 8 + Math.max(0, scatter);
+            for(let i = 0; i<iterations; i++){
                 //if(i%100==0)
                     //console.log(i);
                 let h1 = this.drawhand();
@@ -458,10 +478,18 @@ class Finger{
 
         // Auf eine einheitliche Groesse normalisieren (unabhaengig von der
         // Quellgroesse des SVG), damit hochgeladene Formen wie die original
-        // gezeichnete Hand (~200px) skaliert werden.
+        // gezeichnete Hand (~200px) skaliert werden. Der Groessen-Regler
+        // skaliert diese Zielgroesse.
+        let target = 200 * (SVG_SETTINGS.size || 1);
         let maxDim = Math.max(hand.bounds.width, hand.bounds.height);
         if(maxDim > 0){
-            hand.scale(200 / maxDim, hand.bounds.center);
+            hand.scale(target / maxDim, hand.bounds.center);
+        }
+
+        // Stauchung/Streckung: Hoehe relativ zur Breite skalieren.
+        let squash = SVG_SETTINGS.squash || 1;
+        if(squash !== 1){
+            hand.scale(1, squash, hand.bounds.center);
         }
 
         // Style wie beim prozeduralen Pfad: schwarze Kontur, KEINE Fuellung.

@@ -73,6 +73,11 @@
         <button id="uploadsvg"  onclick="document.getElementById('svgupload').click()">Upload SVG</button>
         <button id="resetshape"  onclick="resetShapes()">Reset Shape</button>
         </div>
+        <div class="seg controls">
+            <label>Größe<input type="range" class="slider" id="sizeslider" min="0.3" max="2.5" step="0.1" value="1" oninput="changeSVGSetting('size', this.value)"></label>
+            <label>Stauchung<input type="range" class="slider" id="squashslider" min="0.3" max="2.5" step="0.1" value="1" oninput="changeSVGSetting('squash', this.value)"></label>
+            <label>Anzahl<input type="range" class="slider" id="countslider" min="0.2" max="3" step="0.1" value="1" oninput="changeSVGSetting('count', this.value)"></label>
+        </div>
         <div>
         <button id="savesvg"  onclick="downloadSVG()">Save SVG</button>
         <button id="savepng"  onclick="downloadPNG()">Save PNG</button>
