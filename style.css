@@ -78,6 +78,34 @@ button:hover{
 }
 
 
+.controls{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.controls label{
+    display: flex;
+    flex-direction: column;
+    color: #AA00FF;
+    letter-spacing: 2px;
+    font-size: 0.8em;
+    margin-right: 1.5em;
+    margin-bottom: 1em;
+}
+
+input.slider{
+    -webkit-appearance: auto;
+    appearance: auto;
+    width: 8em;
+    height: auto;
+    border: none;
+    padding: 0;
+    margin: 0.3em 0 0 0;
+    accent-color: #FF00AA;
+}
+
 .spacer{
     width: 2em;
 }

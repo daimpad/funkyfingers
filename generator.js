@@ -173,6 +173,17 @@ function resetShapes(){
     generate();
 }
 
+// Regler fuer Groesse / Stauchung / Anzahl. Neuzeichnen leicht verzoegert,
+// damit das Ziehen des Reglers fluessig bleibt.
+var regenerateDebounced = _.debounce(function(){
+    generate();
+}, 250);
+
+function changeSVGSetting(key, value){
+    setSVGSetting(key, parseFloat(value));
+    regenerateDebounced();
+}
+
 function toggleFingers(){
     if(tinyFingers){
         fingers.removeTinyFingers();
