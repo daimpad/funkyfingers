@@ -14,11 +14,22 @@
 // Das folgende Beispiel (ein Stern) kannst du durch deine eigenen SVGs ersetzen.
 // ============================================================================
 const CUSTOM_SVGS = [
-    // Beispiel-SVG - hier dein eigenes einsetzen oder das Array leeren ([])
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <path d="M50 2 L61 38 L98 38 L68 60 L79 96 L50 74 L21 96 L32 60 L2 38 L39 38 Z"/>
-    </svg>`
+    // Standardmaessig leer -> die original prozeduralen Finger werden gezeichnet.
+    // Eigene SVGs kannst du entweder direkt hier als String eintragen ODER zur
+    // Laufzeit ueber den "Upload SVG"-Button in der Oberflaeche hochladen.
+    //
+    // Beispiel (auskommentiert):
+    // `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    //     <path d="M50 2 L61 38 L98 38 L68 60 L79 96 L50 74 L21 96 L32 60 L2 38 L39 38 Z"/>
+    // </svg>`
 ];
+
+// Ersetzt die aktuell verwendeten SVGs (z.B. durch hochgeladene Dateien).
+// Leeres Array -> zurueck zu den prozeduralen Fingern.
+function setCustomSVGs(svgStrings){
+    CUSTOM_SVGS.length = 0;
+    (svgStrings || []).forEach(s => CUSTOM_SVGS.push(s));
+}
 
 class Finger{
     
@@ -444,6 +455,14 @@ class Finger{
     drawSVGHand(){
         let src = CUSTOM_SVGS.length === 1 ? CUSTOM_SVGS[0] : _.sample(CUSTOM_SVGS);
         let hand = this.svgToPath(src);
+
+        // Auf eine einheitliche Groesse normalisieren (unabhaengig von der
+        // Quellgroesse des SVG), damit hochgeladene Formen wie die original
+        // gezeichnete Hand (~200px) skaliert werden.
+        let maxDim = Math.max(hand.bounds.width, hand.bounds.height);
+        if(maxDim > 0){
+            hand.scale(200 / maxDim, hand.bounds.center);
+        }
 
         // Style zuruecksetzen - Farbe/Fuellung uebernimmt der Generator.
         hand.fillColor = 'black';

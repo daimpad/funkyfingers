@@ -68,6 +68,11 @@
         <button id="shuffle"  onclick="shuffle()">Shuffle Colors</button>
         <button id="new"  onclick="generate()">New</button>
         </div>
+        <div class="seg">
+        <input type="file" id="svgupload" accept=".svg,image/svg+xml" multiple style="display:none" onchange="uploadSVGs(this.files)">
+        <button id="uploadsvg"  onclick="document.getElementById('svgupload').click()">Upload SVG</button>
+        <button id="resetshape"  onclick="resetShapes()">Reset Shape</button>
+        </div>
         <div>
         <button id="savesvg"  onclick="downloadSVG()">Save SVG</button>
         <button id="savepng"  onclick="downloadPNG()">Save PNG</button>

@@ -131,6 +131,48 @@ function shuffle(){
 
 }
 
+// Liest die ausgewaehlten SVG-Dateien ein und verwendet sie als Formen.
+// Bei mehreren Dateien wird pro Hand zufaellig eine Form ausgewaehlt.
+function uploadSVGs(files){
+    if(!files || files.length === 0){
+        return;
+    }
+    let contents = [];
+    let remaining = files.length;
+
+    function done(){
+        remaining--;
+        if(remaining === 0){
+            let svgs = contents.filter(Boolean);
+            if(svgs.length > 0){
+                setCustomSVGs(svgs);
+                generate();
+            }
+            document.getElementById('svgupload').value = '';
+        }
+    }
+
+    for(let i = 0; i < files.length; i++){
+        let idx = i;
+        let reader = new FileReader();
+        reader.onload = function(e){
+            contents[idx] = e.target.result;
+            done();
+        };
+        reader.onerror = function(){
+            console.error('Konnte SVG nicht lesen:', files[idx].name);
+            done();
+        };
+        reader.readAsText(files[i]);
+    }
+}
+
+// Zurueck zu den original prozeduralen Fingern.
+function resetShapes(){
+    setCustomSVGs([]);
+    generate();
+}
+
 function toggleFingers(){
     if(tinyFingers){
         fingers.removeTinyFingers();
