@@ -32,13 +32,21 @@ function setCustomSVGs(svgStrings){
 }
 
 // Regelbare Darstellungsparameter fuer die Formen.
-//  size   : Groessen-Multiplikator (1 = normal)
-//  squash : Stauchung/Streckung der Hoehe (1 = normal, <1 flacher, >1 hoeher)
-//  count  : Anzahl-Multiplikator fuer die gestreuten Formen (1 = normal)
+//  size           : Groessen-Multiplikator (1 = normal)
+//  squash         : Stauchung/Streckung der Hoehe (1 = normal, <1 flacher, >1 hoeher)
+//  count          : Anzahl-Multiplikator fuer die gestreuten Formen (1 = normal)
+//  stroke         : Konturstaerke-Multiplikator (0 = keine Kontur, 1 = normal)
+//  rotation       : feste Ausrichtung in Grad (nur wenn randomRotation = false)
+//  randomRotation : true = jede Form zufaellig gedreht (Standard)
+//  margin         : Streu-Rand in px - wie weit Formen ueber den Kasten ragen
 const SVG_SETTINGS = {
     size: 1,
     squash: 1,
-    count: 1
+    count: 1,
+    stroke: 1,
+    rotation: 0,
+    randomRotation: true,
+    margin: 0
 };
 
 function setSVGSetting(key, value){
@@ -278,11 +286,19 @@ class Finger{
                     h1.scale(_.random(5,20)/100);
                     handOffset = 0;
                 }
-                h1.rotate(_.random(0, 360));
+                // Rotation: zufaellig (Standard) oder feste Ausrichtung.
+                if(SVG_SETTINGS.randomRotation === false){
+                    h1.rotate(SVG_SETTINGS.rotation || 0);
+                }else{
+                    h1.rotate(_.random(0, 360));
+                }
                 if(_.random(0,1)==0){
                     h1.scale(-1,1);
                 }
-                h1.position = [this.box.bounds.topLeft.x+_.random(-handOffset,this.box.bounds.width+handOffset), this.box.bounds.topLeft.y+_.random(-handOffset,this.box.bounds.height+handOffset)];
+                // Streu-Rand: erlaubt den Formen, weiter ueber den Kasten
+                // hinaus zu ragen.
+                let m = handOffset + (SVG_SETTINGS.margin || 0);
+                h1.position = [this.box.bounds.topLeft.x+_.random(-m,this.box.bounds.width+m), this.box.bounds.topLeft.y+_.random(-m,this.box.bounds.height+m)];
                 if(!this.collides(h1, false)){
                     this.fingers.push(h1);
                     if( i <= 7){
@@ -497,8 +513,12 @@ class Finger{
         // Kontur-Klon h2 bleibt dadurch nur Umriss und ueberdeckt die Farbe
         // nicht. Bei den grossen Formen dient die Form ohnehin nur als Clip.
         hand.fillColor = null;
-        hand.strokeColor = 'black';
-        hand.strokeWidth = 3;
+        let stroke = SVG_SETTINGS.stroke;
+        if(stroke === undefined){
+            stroke = 1;
+        }
+        hand.strokeColor = stroke > 0 ? 'black' : null;
+        hand.strokeWidth = 3 * stroke;
 
         return hand;
     }
